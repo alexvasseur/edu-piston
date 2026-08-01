@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { trainTipX } from './kinematics'
+import { trainEntryTime, trainTipX, waveFrontState } from './kinematics'
 
 describe('trainTipX', () => {
   const base = {
@@ -30,5 +30,33 @@ describe('trainTipX', () => {
     const x = trainTipX({ ...base, simTime: 100, speedMs: 120 })
     const tipEnd = 800 + 40 * ((800 - 120) / 800)
     expect(x).toBeCloseTo(tipEnd, 5)
+  })
+})
+
+describe('waveFrontState', () => {
+  const base = {
+    speedMs: 70,
+    soundSpeed: 340,
+    tunnelLength: 800,
+    portalIn: 120,
+    portalOut: 800,
+    entryDuration: 0.12,
+    approachMeters: 55,
+  }
+
+  it('stays inactive until the train tip reaches the entry portal', () => {
+    const tEnter = trainEntryTime(base.speedMs, base.approachMeters)
+    const before = waveFrontState({ ...base, simTime: tEnter * 0.5 })
+    expect(before.frontActive).toBe(false)
+    expect(before.genTime).toBeGreaterThanOrEqual(tEnter)
+  })
+
+  it('activates only after entry, then advances with sound speed', () => {
+    const early = waveFrontState({ ...base, simTime: 0.05 })
+    expect(early.frontActive).toBe(false)
+
+    const after = waveFrontState({ ...base, simTime: early.genTime + 0.5 })
+    expect(after.frontActive).toBe(true)
+    expect(after.frontX).toBeGreaterThan(base.portalIn + 10)
   })
 })

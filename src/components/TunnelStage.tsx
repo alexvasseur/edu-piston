@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useLanguage } from '../i18n/LanguageContext'
-import { trainTipX } from '../physics/kinematics'
+import { trainTipX, waveFrontState } from '../physics/kinematics'
 import type { DerivedQuantities, SimulationParams } from '../physics/types'
 
 interface Props {
@@ -35,15 +35,22 @@ export function TunnelStage({ params, derived, progress, duration }: Props) {
       portalOut,
     })
 
-    // Compression front travels at sound speed after generation.
-    const genTime = derived.entryDuration * 0.55
-    const frontT = Math.max(0, simTime - genTime)
-    const frontFrac = Math.min(1, frontT / Math.max(derived.transitTime, 1e-3))
-    const frontX = portalIn + frontFrac * tunnelLenPx
-    const frontActive = simTime >= genTime * 0.3 && frontFrac < 1.02
+    // Front launches only after the nose reaches the entry portal (not during approach).
+    const { frontX, frontActive } = waveFrontState({
+      simTime,
+      speedMs: params.speedMs,
+      soundSpeed: derived.soundSpeed,
+      tunnelLength: params.tunnelLength,
+      portalIn,
+      portalOut,
+      entryDuration: derived.entryDuration,
+    })
 
-    // Pressure hatch opacity inside tunnel ahead of train.
-    const pressureAlpha = Math.min(0.7, 0.28 + derived.deltaPOverP0 * 6)
+    // Hatch appears once the tip is inside / at the portal.
+    const entered = trainX >= portalIn - 2
+    const pressureAlpha = entered
+      ? Math.min(0.7, 0.28 + derived.deltaPOverP0 * 6)
+      : 0
 
     return {
       W,
