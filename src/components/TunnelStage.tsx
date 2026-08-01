@@ -24,28 +24,16 @@ export function TunnelStage({ params, derived, progress, duration }: Props) {
     const nosePx = Math.max(18, (params.noseLength / params.tunnelLength) * tunnelLenPx * 4)
     const hoodPx = params.hoodLength > 0 ? Math.min(90, params.hoodLength * 0.9) : 0
 
-    // Train position: approaches, enters, traverses, exits.
-    const enterEnd = derived.entryDuration / duration
-    const traverseEnd = (derived.entryDuration + derived.transitTime * (params.speedMs / derived.soundSpeed)) / duration
-    // Use a kinematic scrub independent of acoustic transit for visual clarity.
-    const visualTraverse = Math.min(0.75, params.tunnelLength / (params.speedMs * duration))
-    const pEnter = 0.12
-    const pInside = pEnter + visualTraverse
-    const pExit = Math.min(0.95, pInside + 0.1)
-
-    let trainX: number
-    if (progress < pEnter) {
-      const u = progress / pEnter
-      trainX = portalIn - trainLen - 40 + u * (40 + nosePx)
-    } else if (progress < pInside) {
-      const u = (progress - pEnter) / (pInside - pEnter)
-      trainX = portalIn - nosePx + u * (tunnelLenPx + nosePx)
-    } else if (progress < pExit) {
-      const u = (progress - pInside) / (pExit - pInside)
-      trainX = portalOut + u * 80
-    } else {
-      trainX = portalOut + 80
-    }
+    // Continuous constant-speed tip motion (local x=0 is the nose tip).
+    // Piecewise phases previously mismatched at the portal and caused a ~90px jump.
+    const approachDist = 110
+    const exitDist = 90
+    const tipStart = portalIn - approachDist
+    const tipEnd = portalOut + exitDist
+    const tipTravel = tipEnd - tipStart
+    const moveUntil = 0.9 // final 10% holds at the exit side
+    const uMove = Math.min(1, Math.max(0, progress / moveUntil))
+    const trainX = tipStart + uMove * tipTravel
 
     // Compression front travels at sound speed after generation.
     const genTime = derived.entryDuration * 0.55
@@ -71,8 +59,6 @@ export function TunnelStage({ params, derived, progress, duration }: Props) {
       frontX,
       frontActive,
       pressureAlpha,
-      enterEnd,
-      traverseEnd,
     }
   }, [params, derived, progress, duration, simTime])
 
