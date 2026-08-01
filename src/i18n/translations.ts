@@ -76,7 +76,7 @@ export const translations: Record<Lang, Dict> = {
     exportCsv: 'Export CSV',
     scrubAria: 'Scrub simulation time',
     stageHint:
-      'Hatch density marks compressed air ahead of the nose. The amber probe tracks the compression front at sound speed; the portal mic marks where ∂p/∂t radiates as a micro-pressure wave.',
+      'Hatch density marks compressed air ahead of the nose. The train moves at your chosen speed V; the amber probe tracks the compression front at sound speed c (usually much faster). The portal mic marks where ∂p/∂t radiates as a micro-pressure wave.',
     parameters: 'Parameters',
     live: 'live',
     mitigationActive: 'mitigation active',
@@ -163,7 +163,7 @@ export const translations: Record<Lang, Dict> = {
     exportCsv: 'Exporter CSV',
     scrubAria: 'Défiler le temps de simulation',
     stageHint:
-      'Le hachurage indique l’air comprimé devant le nez. La sonde ambre suit le front de compression à la vitesse du son ; le micro portail marque où ∂p/∂t rayonne en micro-pression.',
+      'Le hachurage indique l’air comprimé devant le nez. Le train avance à la vitesse V choisie ; la sonde ambre suit le front de compression à la célérité du son c (souvent bien plus rapide). Le micro portail marque où ∂p/∂t rayonne en micro-pression.',
     parameters: 'Paramètres',
     live: 'temps réel',
     mitigationActive: 'atténuation active',
