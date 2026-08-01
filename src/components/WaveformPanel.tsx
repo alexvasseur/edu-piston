@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { useLanguage } from '../i18n/LanguageContext'
 import type { WaveSample } from '../physics/types'
 
 interface Props {
@@ -6,6 +7,7 @@ interface Props {
   progress: number
   duration: number
   compareSamples?: WaveSample[] | null
+  nested?: boolean
 }
 
 function pathFrom(
@@ -41,7 +43,7 @@ function WavePlot({
   compareSamples?: WaveSample[] | null
 }) {
   const W = 320
-  const H = 140
+  const H = 120
   const main = useMemo(() => pathFrom(samples, pick, W, H), [samples, pick])
   const ghost = useMemo(
     () => (compareSamples ? pathFrom(compareSamples, pick, W, H) : ''),
@@ -63,31 +65,41 @@ function WavePlot({
   )
 }
 
-export function WaveformPanel({ samples, progress, duration, compareSamples }: Props) {
+export function WaveformPanel({
+  samples,
+  progress,
+  duration,
+  compareSamples,
+  nested = false,
+}: Props) {
+  const { t } = useLanguage()
+
   return (
-    <div className="panel waveforms">
+    <div className={`panel waveforms${nested ? ' waveforms-nested' : ''}`}>
       <div className="panel-header">
-        <span>Waveforms</span>
-        <span>t = {(progress * duration).toFixed(2)} s / {duration.toFixed(2)} s</span>
+        <span>{t.waveforms}</span>
+        <span>
+          t = {(progress * duration).toFixed(2)} s / {duration.toFixed(2)} s
+        </span>
       </div>
       <div className="panel-body">
         <div className="wave-grid">
           <WavePlot
-            title="Interior p(t)"
+            title={t.interiorP}
             samples={samples}
             pick={(s) => s.interior}
             progress={progress}
             compareSamples={compareSamples}
           />
           <WavePlot
-            title="Portal ∂p/∂t"
+            title={t.portalGradient}
             samples={samples}
             pick={(s) => s.portalGradient}
             progress={progress}
             compareSamples={compareSamples}
           />
           <WavePlot
-            title="Exterior micro-pressure"
+            title={t.exteriorMp}
             samples={samples}
             pick={(s) => s.exterior}
             progress={progress}
@@ -96,8 +108,8 @@ export function WaveformPanel({ samples, progress, duration, compareSamples }: P
         </div>
         {compareSamples && (
           <div className="compare-row">
-            <span className="chip">solid = current</span>
-            <span className="chip">ghost = baseline (no hood, short nose)</span>
+            <span className="chip">{t.solidCurrent}</span>
+            <span className="chip">{t.ghostBaseline}</span>
           </div>
         )}
       </div>

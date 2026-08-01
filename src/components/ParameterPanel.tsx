@@ -1,3 +1,5 @@
+import { useLanguage } from '../i18n/LanguageContext'
+import type { Highlight } from '../i18n/translations'
 import {
   BLOCKAGE_MAX,
   BLOCKAGE_MIN,
@@ -12,10 +14,11 @@ interface Props {
   params: SimulationParams
   derived: DerivedQuantities
   onChange: (patch: Partial<SimulationParams>) => void
-  onHighlight: (key: 'blockage' | 'mach' | 'pressure' | 'rise' | 'boom') => void
+  onHighlight: (key: Highlight) => void
 }
 
 export function ParameterPanel({ mode, params, derived, onChange, onHighlight }: Props) {
+  const { t } = useLanguage()
   const speedKmh = msToKmh(params.speedMs)
   const setSpeedKmh = (kmh: number) => onChange({ speedMs: kmhToMs(kmh) })
 
@@ -26,13 +29,13 @@ export function ParameterPanel({ mode, params, derived, onChange, onHighlight }:
   return (
     <div className="panel">
       <div className="panel-header">
-        <span>Parameters</span>
-        <span>{mode === 'mitigate' ? 'mitigation active' : 'live'}</span>
+        <span>{t.parameters}</span>
+        <span>{mode === 'mitigate' ? t.mitigationActive : t.live}</span>
       </div>
       <div className="panel-body controls">
         <label className="control" onFocus={() => onHighlight('mach')}>
           <div className="control-label">
-            <span>Train speed</span>
+            <span>{t.trainSpeed}</span>
             <span>{speedKmh.toFixed(0)} km/h</span>
           </div>
           <input
@@ -50,7 +53,7 @@ export function ParameterPanel({ mode, params, derived, onChange, onHighlight }:
 
         <label className="control">
           <div className="control-label">
-            <span>Blockage β</span>
+            <span>{t.blockage}</span>
             <span>{derived.blockage.toFixed(3)}</span>
           </div>
           <input
@@ -68,7 +71,7 @@ export function ParameterPanel({ mode, params, derived, onChange, onHighlight }:
 
         <label className="control">
           <div className="control-label">
-            <span>Nose length</span>
+            <span>{t.noseLength}</span>
             <span>{params.noseLength.toFixed(1)} m</span>
           </div>
           <input
@@ -86,7 +89,7 @@ export function ParameterPanel({ mode, params, derived, onChange, onHighlight }:
 
         <label className="control">
           <div className="control-label">
-            <span>Tunnel length</span>
+            <span>{t.tunnelLength}</span>
             <span>{params.tunnelLength.toFixed(0)} m</span>
           </div>
           <input
@@ -104,7 +107,7 @@ export function ParameterPanel({ mode, params, derived, onChange, onHighlight }:
 
         <label className="control">
           <div className="control-label">
-            <span>Ambient temperature</span>
+            <span>{t.ambientTemp}</span>
             <span>{(params.temperatureK - 273.15).toFixed(0)} °C</span>
           </div>
           <input
@@ -122,7 +125,7 @@ export function ParameterPanel({ mode, params, derived, onChange, onHighlight }:
 
         <label className="control">
           <div className="control-label">
-            <span>Entry hood length</span>
+            <span>{t.hoodLength}</span>
             <span>{params.hoodLength.toFixed(0)} m</span>
           </div>
           <input
@@ -148,38 +151,31 @@ export function ParameterPanel({ mode, params, derived, onChange, onHighlight }:
             <span className="v">{(derived.deltaP / 1000).toFixed(2)} kPa</span>
           </div>
           <div className="readout" onMouseEnter={() => onHighlight('rise')}>
-            <span className="k">Rise time</span>
+            <span className="k">{t.riseTime}</span>
             <span className="v">{(derived.riseTime * 1000).toFixed(0)} ms</span>
           </div>
           <div className="readout" onMouseEnter={() => onHighlight('boom')}>
-            <span className="k">Boom index</span>
+            <span className="k">{t.boomIndex}</span>
             <span className="v">{formatSci(derived.boomIndex, 3)}</span>
           </div>
           <div className="readout" onMouseEnter={() => onHighlight('boom')}>
-            <span className="k">Ext. peak</span>
+            <span className="k">{t.extPeak}</span>
             <span className="v">{formatSci(derived.exteriorPeak, 3)} Pa</span>
           </div>
           <div className="readout" onMouseEnter={() => onHighlight('rise')}>
-            <span className="k">f★ ~ 1/t<sub>r</sub></span>
+            <span className="k">
+              f★ ~ 1/t<sub>r</sub>
+            </span>
             <span className="v">{derived.characteristicFreq.toFixed(1)} Hz</span>
           </div>
         </div>
 
-        {mode === 'mitigate' && (
-          <p className="hint">
-            Mitigation mode: increase nose length or hood length and watch boom index fall faster than
-            interior Δp. That is the portal-gradient lesson.
-          </p>
-        )}
+        {mode === 'mitigate' && <p className="hint">{t.mitigateHint}</p>}
 
         {mode === 'lab' && (
           <div className="lab-box">
-            <strong>Lab prompt</strong>
-            <p className="hint">
-              Hold β = 0.25. Find the lowest speed that yields boom index ≥ 1.0 with no hood, then
-              add a hood that brings it back below 0.7. Export your parameter set in a lab note
-              (V, L<sub>nose</sub>, L<sub>hood</sub>, Δp, t<sub>r</sub>).
-            </p>
+            <strong>{t.labPrompt}</strong>
+            <p className="hint">{t.labHint}</p>
           </div>
         )}
       </div>

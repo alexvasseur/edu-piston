@@ -97,6 +97,54 @@ a {
   max-width: 42rem;
 }
 
+.topbar-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.65rem;
+}
+
+.lang-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.lang-label {
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.lang-tabs {
+  display: flex;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.lang-tabs button {
+  background: transparent;
+  border: 0;
+  padding: 0.35rem 0.7rem;
+  color: var(--muted);
+  border-right: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+}
+
+.lang-tabs button:last-child {
+  border-right: 0;
+}
+
+.lang-tabs button.active {
+  background: #f2f2f2;
+  color: #0a0a0a;
+  font-weight: 600;
+}
+
 .mode-tabs {
   display: flex;
   border: 1px solid var(--line-strong);
@@ -126,6 +174,14 @@ a {
   display: grid;
   grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.9fr);
   gap: 1rem;
+  align-items: start;
+}
+
+.stage-column,
+.side-column {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
 }
 
 .panel {
@@ -260,7 +316,11 @@ a {
 }
 
 .waveforms {
-  margin-top: 1rem;
+  margin-top: 0;
+}
+
+.waveforms-nested .wave-svg {
+  height: 110px;
 }
 
 .wave-grid {
@@ -369,5 +429,21 @@ a {
   .topbar {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .topbar-controls {
+    align-items: stretch;
+  }
+
+  .lang-selector {
+    justify-content: space-between;
+  }
+
+  .mode-tabs {
+    width: 100%;
+  }
+
+  .mode-tabs button {
+    flex: 1;
   }
 }

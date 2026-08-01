@@ -1,22 +1,19 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { FormulaBoard } from './components/FormulaBoard'
+import { LanguageSelector } from './components/LanguageSelector'
 import { ParameterPanel } from './components/ParameterPanel'
 import { TunnelStage } from './components/TunnelStage'
 import { WaveformPanel } from './components/WaveformPanel'
+import { useLanguage } from './i18n/LanguageContext'
+import type { Highlight } from './i18n/translations'
 import { DEFAULT_PARAMS } from './physics/constants'
 import { simulate } from './physics/model'
 import type { LabMode, SimulationParams } from './physics/types'
 
-type Highlight = 'blockage' | 'mach' | 'pressure' | 'rise' | 'boom'
-
-const MODES: { id: LabMode; label: string }[] = [
-  { id: 'explore', label: 'Explore' },
-  { id: 'derive', label: 'Derive' },
-  { id: 'mitigate', label: 'Mitigate' },
-  { id: 'lab', label: 'Lab' },
-]
+const MODE_IDS: LabMode[] = ['explore', 'derive', 'mitigate', 'lab']
 
 export default function App() {
+  const { t } = useLanguage()
   const [mode, setMode] = useState<LabMode>('explore')
   const [params, setParams] = useState<SimulationParams>(DEFAULT_PARAMS)
   const [highlight, setHighlight] = useState<Highlight>('pressure')
@@ -82,73 +79,79 @@ export default function App() {
     <div className="app">
       <header className="topbar">
         <div className="brand">
-          <h1 className="brand-mark">PISTON EFFECT LAB</h1>
-          <p className="brand-sub">
-            Graduate teaching instrument for train–tunnel compression waves, portal micro-pressure,
-            and the physics behind tunnel boom.
-          </p>
+          <h1 className="brand-mark">{t.brandTitle}</h1>
+          <p className="brand-sub">{t.brandSub}</p>
         </div>
-        <div className="mode-tabs" role="tablist" aria-label="Lab mode">
-          {MODES.map((m) => (
-            <button
-              key={m.id}
-              type="button"
-              role="tab"
-              aria-selected={mode === m.id}
-              className={mode === m.id ? 'active' : ''}
-              onClick={() => setMode(m.id)}
-            >
-              {m.label}
-            </button>
-          ))}
+        <div className="topbar-controls">
+          <LanguageSelector />
+          <div className="mode-tabs" role="tablist" aria-label={t.modeAria}>
+            {MODE_IDS.map((id) => (
+              <button
+                key={id}
+                type="button"
+                role="tab"
+                aria-selected={mode === id}
+                className={mode === id ? 'active' : ''}
+                onClick={() => setMode(id)}
+              >
+                {t.modes[id]}
+              </button>
+            ))}
+          </div>
         </div>
       </header>
 
       <div className="layout">
-        <section className="panel">
-          <div className="panel-header">
-            <span>Tunnel stage</span>
-            <span>side section · acoustic front</span>
-          </div>
-          <div className="panel-body">
-            <TunnelStage
-              params={params}
-              derived={result.derived}
-              progress={progress}
-              duration={result.duration}
-            />
-            <div className="transport">
-              <button type="button" onClick={() => setPlaying((p) => !p)}>
-                {playing ? 'Pause' : 'Play'}
-              </button>
-              <button type="button" className="secondary" onClick={() => setProgress(0)}>
-                Reset
-              </button>
-              <button type="button" className="secondary" onClick={exportCsv}>
-                Export CSV
-              </button>
-              <input
-                type="range"
-                min={0}
-                max={1}
-                step={0.001}
-                value={progress}
-                aria-label="Scrub simulation time"
-                onChange={(e) => {
-                  setPlaying(false)
-                  setProgress(Number(e.target.value))
-                }}
-              />
+        <div className="stage-column">
+          <section className="panel">
+            <div className="panel-header">
+              <span>{t.tunnelStage}</span>
+              <span>{t.tunnelStageMeta}</span>
             </div>
-            <p className="hint">
-              Hatch density marks compressed air ahead of the nose. The amber probe tracks the
-              compression front at sound speed; the portal mic marks where ∂p/∂t radiates as a
-              micro-pressure wave.
-            </p>
-          </div>
-        </section>
+            <div className="panel-body">
+              <TunnelStage
+                params={params}
+                derived={result.derived}
+                progress={progress}
+                duration={result.duration}
+              />
+              <div className="transport">
+                <button type="button" onClick={() => setPlaying((p) => !p)}>
+                  {playing ? t.pause : t.play}
+                </button>
+                <button type="button" className="secondary" onClick={() => setProgress(0)}>
+                  {t.reset}
+                </button>
+                <button type="button" className="secondary" onClick={exportCsv}>
+                  {t.exportCsv}
+                </button>
+                <input
+                  type="range"
+                  min={0}
+                  max={1}
+                  step={0.001}
+                  value={progress}
+                  aria-label={t.scrubAria}
+                  onChange={(e) => {
+                    setPlaying(false)
+                    setProgress(Number(e.target.value))
+                  }}
+                />
+              </div>
+              <p className="hint">{t.stageHint}</p>
+            </div>
+          </section>
 
-        <aside style={{ display: 'grid', gap: '1rem' }}>
+          <WaveformPanel
+            nested
+            samples={result.samples}
+            progress={progress}
+            duration={result.duration}
+            compareSamples={baseline?.samples}
+          />
+        </div>
+
+        <aside className="side-column">
           <ParameterPanel
             mode={mode}
             params={params}
@@ -159,13 +162,6 @@ export default function App() {
           <FormulaBoard mode={mode} derived={result.derived} highlight={highlight} />
         </aside>
       </div>
-
-      <WaveformPanel
-        samples={result.samples}
-        progress={progress}
-        duration={result.duration}
-        compareSamples={baseline?.samples}
-      />
     </div>
   )
 }

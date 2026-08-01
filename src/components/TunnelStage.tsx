@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { useLanguage } from '../i18n/LanguageContext'
 import type { DerivedQuantities, SimulationParams } from '../physics/types'
 
 interface Props {
@@ -9,7 +10,8 @@ interface Props {
 }
 
 export function TunnelStage({ params, derived, progress, duration }: Props) {
-  const t = progress * duration
+  const { t } = useLanguage()
+  const simTime = progress * duration
   const geometry = useMemo(() => {
     const W = 920
     const H = 280
@@ -47,10 +49,10 @@ export function TunnelStage({ params, derived, progress, duration }: Props) {
 
     // Compression front travels at sound speed after generation.
     const genTime = derived.entryDuration * 0.55
-    const frontT = Math.max(0, t - genTime)
+    const frontT = Math.max(0, simTime - genTime)
     const frontFrac = Math.min(1, frontT / Math.max(derived.transitTime, 1e-3))
     const frontX = portalIn + frontFrac * tunnelLenPx
-    const frontActive = t >= genTime * 0.3 && frontFrac < 1.02
+    const frontActive = simTime >= genTime * 0.3 && frontFrac < 1.02
 
     // Pressure hatch opacity inside tunnel ahead of train.
     const pressureAlpha = Math.min(0.55, derived.deltaPOverP0 * 8)
@@ -72,7 +74,7 @@ export function TunnelStage({ params, derived, progress, duration }: Props) {
       enterEnd,
       traverseEnd,
     }
-  }, [params, derived, progress, duration, t])
+  }, [params, derived, progress, duration, simTime])
 
   const {
     W,
@@ -99,7 +101,7 @@ export function TunnelStage({ params, derived, progress, duration }: Props) {
         className="stage-canvas"
         viewBox={`0 0 ${W} ${H}`}
         role="img"
-        aria-label="Train entering tunnel with compression wave front"
+        aria-label={t.stageAria}
       >
         <defs>
           <pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(35)">
@@ -161,7 +163,7 @@ export function TunnelStage({ params, derived, progress, duration }: Props) {
               strokeWidth="2"
             />
             <text x={frontX + 6} y={tunnelY - 16} fill="#d4a017" fontSize="12" fontFamily="IBM Plex Mono, monospace">
-              wave front → c
+              {t.waveFront}
             </text>
           </g>
         )}
@@ -181,16 +183,16 @@ export function TunnelStage({ params, derived, progress, duration }: Props) {
           <circle cx={portalOut + 28} cy={tunnelY + tunnelH / 2} r="4" fill="none" stroke="#d4a017" strokeWidth="1.5" />
           <line x1={portalOut + 8} y1={tunnelY + tunnelH / 2} x2={portalOut + 24} y2={tunnelY + tunnelH / 2} stroke="#d4a017" strokeWidth="1" />
           <text x={portalOut + 36} y={tunnelY + tunnelH / 2 + 4} fill="#c8c8c8" fontSize="11" fontFamily="IBM Plex Sans, sans-serif">
-            portal mic
+            {t.portalMic}
           </text>
         </g>
 
         {/* Labels */}
         <text x={portalIn} y={36} fill="#8a8a8a" fontSize="12" fontFamily="IBM Plex Sans, sans-serif" letterSpacing="2">
-          ENTRY
+          {t.entry}
         </text>
-        <text x={portalOut - 40} y={36} fill="#8a8a8a" fontSize="12" fontFamily="IBM Plex Sans, sans-serif" letterSpacing="2">
-          EXIT
+        <text x={portalOut - 48} y={36} fill="#8a8a8a" fontSize="12" fontFamily="IBM Plex Sans, sans-serif" letterSpacing="2">
+          {t.exit}
         </text>
         <text x={40} y={H - 24} fill="#6a6a6a" fontSize="11" fontFamily="IBM Plex Mono, monospace">
           β={derived.blockage.toFixed(3)}  M={derived.mach.toFixed(3)}  L={params.tunnelLength} m
