@@ -43,7 +43,7 @@ export function TunnelStage({ params, derived, progress, duration }: Props) {
     const frontActive = simTime >= genTime * 0.3 && frontFrac < 1.02
 
     // Pressure hatch opacity inside tunnel ahead of train.
-    const pressureAlpha = Math.min(0.55, derived.deltaPOverP0 * 8)
+    const pressureAlpha = Math.min(0.7, 0.28 + derived.deltaPOverP0 * 6)
 
     return {
       W,
@@ -91,7 +91,7 @@ export function TunnelStage({ params, derived, progress, duration }: Props) {
       >
         <defs>
           <pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(35)">
-            <line x1="0" y1="0" x2="0" y2="8" stroke="rgba(255,255,255,0.35)" strokeWidth="1" />
+            <line x1="0" y1="0" x2="0" y2="8" stroke="rgba(232, 168, 90, 0.85)" strokeWidth="1.25" />
           </pattern>
           <linearGradient id="ground" x1="0" x2="0" y1="0" y2="1">
             <stop offset="0%" stopColor="#141414" />
