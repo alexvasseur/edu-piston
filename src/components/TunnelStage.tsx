@@ -123,11 +123,11 @@ export function TunnelStage({ params, derived, progress, duration }: Props) {
         <rect x={portalIn} y={tunnelY} width={portalOut - portalIn} height={10} fill="#1c1c1c" />
         <rect x={portalIn} y={tunnelY + tunnelH - 10} width={portalOut - portalIn} height={10} fill="#1c1c1c" />
 
-        {/* Compressed air hatch ahead of train inside tunnel */}
+        {/* Compressed air hatch ahead of the nose (direction of travel →) */}
         <rect
-          x={Math.min(Math.max(trainX + trainLen, portalIn), portalOut)}
+          x={Math.min(Math.max(trainX, portalIn), portalOut)}
           y={tunnelY + 10}
-          width={Math.max(0, portalOut - Math.min(Math.max(trainX + trainLen, portalIn), portalOut))}
+          width={Math.max(0, portalOut - Math.min(Math.max(trainX, portalIn), portalOut))}
           height={tunnelH - 20}
           fill="url(#hatch)"
           opacity={pressureAlpha}
@@ -154,14 +154,14 @@ export function TunnelStage({ params, derived, progress, duration }: Props) {
           </g>
         )}
 
-        {/* Train */}
-        <g transform={`translate(${trainX}, ${trainY})`}>
+        {/* Train: local x=0 at rear, tip at trainLen; trainX is world tip (leading edge). */}
+        <g transform={`translate(${trainX - trainLen}, ${trainY})`}>
           <path
-            d={`M ${nosePx} 0 L ${trainLen} 0 L ${trainLen} ${trainH} L ${nosePx} ${trainH} L 0 ${trainH * 0.55} Z`}
+            d={`M 0 0 L ${trainLen - nosePx} 0 L ${trainLen} ${trainH * 0.55} L ${trainLen - nosePx} ${trainH} L 0 ${trainH} Z`}
             fill="#f2f2f2"
           />
-          <rect x={nosePx + 12} y={8} width={28} height={14} fill="#0a0a0a" />
-          <rect x={nosePx + 50} y={8} width={28} height={14} fill="#0a0a0a" />
+          <rect x={trainLen - nosePx - 70} y={8} width={28} height={14} fill="#0a0a0a" />
+          <rect x={trainLen - nosePx - 32} y={8} width={28} height={14} fill="#0a0a0a" />
         </g>
 
         {/* Mic markers */}
